@@ -1,0 +1,217 @@
+service: arq-studio-api
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  environment:
+    STAGE: ${self:provider.stage}
+    PROJECTS_TABLE: ${self:service}-projects-${self:provider.stage}
+    CONSULTATIONS_TABLE: ${self:service}-consultations-${self:provider.stage}
+    CLIENTS_TABLE: ${self:service}-clients-${self:provider.stage}
+    FILES_BUCKET: ${self:service}-files-${self:provider.stage}
+    DAILY_API_KEY: ${env:DAILY_API_KEY}
+    JWT_SECRET: ${env:JWT_SECRET}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:Scan
+          Resource:
+            - !GetAtt ProjectsTable.Arn
+            - !GetAtt ConsultationsTable.Arn
+            - !GetAtt ClientsTable.Arn
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource: !Sub 'arn:aws:s3:::${self:provider.environment.FILES_BUCKET}/*'
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+          Resource: '*'
+
+functions:
+  # Auth
+  me:
+    handler: dist/handlers/auth.me
+    events:
+      - httpApi:
+          path: /api/me
+          method: GET
+
+  # Projects
+  listProjects:
+    handler: dist/handlers/projects.list
+    events:
+      - httpApi:
+          path: /api/projects
+          method: GET
+
+  getProject:
+    handler: dist/handlers/projects.get
+    events:
+      - httpApi:
+          path: /api/projects/{id}
+          method: GET
+
+  createProject:
+    handler: dist/handlers/projects.create
+    events:
+      - httpApi:
+          path: /api/projects
+          method: POST
+
+  updateProjectStatus:
+    handler: dist/handlers/projects.updateStatus
+    events:
+      - httpApi:
+          path: /api/projects/{id}/status
+          method: PATCH
+
+  # Consultations
+  listConsultations:
+    handler: dist/handlers/consultations.list
+    events:
+      - httpApi:
+          path: /api/consultations
+          method: GET
+
+  getConsultation:
+    handler: dist/handlers/consultations.get
+    events:
+      - httpApi:
+          path: /api/consultations/{id}
+          method: GET
+
+  scheduleConsultation:
+    handler: dist/handlers/consultations.schedule
+    events:
+      - httpApi:
+          path: /api/consultations
+          method: POST
+
+  startConsultation:
+    handler: dist/handlers/consultations.start
+    events:
+      - httpApi:
+          path: /api/consultations/{id}/start
+          method: POST
+
+  endConsultation:
+    handler: dist/handlers/consultations.end
+    events:
+      - httpApi:
+          path: /api/consultations/{id}/end
+          method: POST
+
+  # Video
+  joinConsultation:
+    handler: dist/handlers/video.join
+    events:
+      - httpApi:
+          path: /api/consultations/{id}/join
+          method: POST
+
+  # Files
+  listProjectFiles:
+    handler: dist/handlers/files.list
+    events:
+      - httpApi:
+          path: /api/projects/{id}/files
+          method: GET
+
+  getUploadUrl:
+    handler: dist/handlers/files.getUploadUrl
+    events:
+      - httpApi:
+          path: /api/projects/{id}/files/upload-url
+          method: POST
+
+resources:
+  Resources:
+    ProjectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PROJECTS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: clientId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: byClient
+            KeySchema:
+              - AttributeName: clientId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    ConsultationsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CONSULTATIONS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: projectId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: byProject
+            KeySchema:
+              - AttributeName: projectId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    ClientsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CLIENTS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: byEmail
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    FilesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.FILES_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [GET, PUT, POST]
+              AllowedOrigins: ['*']
+              MaxAge: 3600
+
+plugins:
+  - serverless-offline

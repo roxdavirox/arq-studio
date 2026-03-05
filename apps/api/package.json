@@ -1,0 +1,36 @@
+{
+  "name": "@arq/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "serverless offline",
+    "deploy": "serverless deploy",
+    "deploy:prod": "serverless deploy --stage prod",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "build": "tsc",
+    "clean": "rm -rf dist .serverless"
+  },
+  "dependencies": {
+    "@arq/domain": "workspace:*",
+    "@arq/types": "workspace:*",
+    "@aws-sdk/client-dynamodb": "^3.825.0",
+    "@aws-sdk/lib-dynamodb": "^3.825.0",
+    "@aws-sdk/client-ses": "^3.825.0",
+    "@aws-sdk/client-s3": "^3.825.0",
+    "@aws-sdk/s3-request-presigner": "^3.825.0",
+    "@roxdavirox/fp-core": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "serverless": "^4.17.0",
+    "serverless-offline": "^14.4.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.0.0"
+  }
+}

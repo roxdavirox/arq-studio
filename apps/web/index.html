@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f0eb" />
+    <meta name="description" content="Portal do cliente — consultoria arquitetônica com vídeo em tempo real" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Arq Studio</title>
+    <style>
+      /* Prevent FOWT — set base before React mounts */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { font-family: system-ui, -apple-system, sans-serif; -webkit-text-size-adjust: 100%; }
+      body { background: oklch(98% 0.005 60); color: oklch(18% 0.012 60); min-height: 100dvh; }
+      #root { min-height: 100dvh; display: flex; flex-direction: column; }
+      @keyframes arq-spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
