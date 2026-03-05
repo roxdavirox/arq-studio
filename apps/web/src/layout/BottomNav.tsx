@@ -1,8 +1,9 @@
 import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, FolderOpen, Video, User } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { colors, fontSizes, transitions } from '@arq/ui'
 
-const navItems = [
+const navItems: { to: string; icon: LucideIcon; label: string }[] = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Início' },
   { to: '/projects', icon: FolderOpen, label: 'Projetos' },
   { to: '/consultations', icon: Video, label: 'Consultas' },
@@ -27,26 +28,30 @@ export const BottomNav = () => (
     }}
   >
     {navItems.map(({ to, icon: Icon, label }) => (
-      <NavLink
-        key={to}
-        to={to}
-        style={({ isActive }) => ({
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.25rem',
-          color: isActive ? colors.terracotta[500] : colors.stone[400],
-          textDecoration: 'none',
-          fontSize: fontSizes.xs,
-          fontWeight: isActive ? 600 : 400,
-          transition: `color ${transitions.fast}`,
-          WebkitTapHighlightColor: 'transparent',
-          minHeight: '44px',
-        })}
-      >
-        <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} />
-        {label}
+      <NavLink key={to} to={to}>
+        {({ isActive }) => (
+          <span
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.25rem',
+              height: '100%',
+              color: isActive ? colors.terracotta[500] : colors.stone[400],
+              textDecoration: 'none',
+              fontSize: fontSizes.xs,
+              fontWeight: isActive ? 600 : 400,
+              transition: `color ${transitions.fast}`,
+              WebkitTapHighlightColor: 'transparent',
+              minHeight: '44px',
+              cursor: 'pointer',
+            }}
+          >
+            <Icon size={22} strokeWidth={isActive ? 2.2 : 1.8} />
+            {label}
+          </span>
+        )}
       </NavLink>
     ))}
   </nav>

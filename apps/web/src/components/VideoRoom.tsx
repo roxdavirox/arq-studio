@@ -2,7 +2,7 @@
 // Mobile-first: full-screen video with floating controls
 import { useEffect, useRef, useState, useCallback } from 'react'
 import DailyIframe from '@daily-co/daily-js'
-import type { DailyCall, DailyEventObject } from '@daily-co/daily-js'
+import type { DailyCall } from '@daily-co/daily-js'
 import { colors, transitions } from '@arq/ui'
 import { Mic, MicOff, Video, VideoOff, PhoneOff, Users } from 'lucide-react'
 
@@ -28,8 +28,8 @@ export const VideoRoom = ({ roomUrl, clientId, clientName }: VideoRoomProps) => 
       showFullscreenButton: false,
       iframeStyle: {
         position: 'absolute',
-        top: 0,
-        left: 0,
+        top: '0',
+        left: '0',
         width: '100%',
         height: '100%',
         border: 'none',

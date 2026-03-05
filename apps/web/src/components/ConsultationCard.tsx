@@ -29,7 +29,7 @@ export const ConsultationCard = ({ consultation }: { consultation: Consultation 
             >
               <Video size={20} />
             </div>
-            <Stack gap={0.5}>
+            <Stack gap={1}>
               <span style={{ fontSize: fontSizes.base, fontWeight: 600, color: colors.stone[900] }}>
                 Consulta com arquiteto
               </span>
